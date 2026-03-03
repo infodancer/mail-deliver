@@ -194,6 +194,13 @@ func (dlvr *Deliverer) Deliver(ctx context.Context, req protocol.DeliverRequest,
 		envelope.ClientIP = net.ParseIP(req.ClientIP)
 	}
 
+	// ── Encryption seam ────────────────────────────────────────────────────────
+	// When req.EncryptionKeyHint is non-empty, this is where
+	// msgstore.EncryptingDeliveryAgent should wrap dom.DeliveryAgent to encrypt
+	// the message before delivery. The KeyProvider (from auth) resolves the
+	// hint to a public key. Encryption happens after spam checking so the spam
+	// scanner sees plaintext. See: infodancer/infodancer/docs/encryption-design.md
+	// ────────────────────────────────────────────────────────────────────────────
 	if err := dom.DeliveryAgent.Deliver(ctx, envelope, bytes.NewReader(msg)); err != nil {
 		return protocol.DeliverResponse{}, fmt.Errorf("maildir delivery to %s: %w", recipient, err)
 	}
