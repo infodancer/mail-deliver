@@ -40,6 +40,14 @@ type DeliverRequest struct {
 	// Forwarded indicates this delivery is the result of a forwarding rule expansion.
 	// When true, mail-deliver skips forwarding resolution to enforce the 1-hop limit.
 	Forwarded bool `json:"forwarded,omitempty"`
+
+	// EncryptionKeyHint identifies the recipient's public key for at-rest
+	// encryption. Empty means no encryption. The hint format is a key
+	// fingerprint or identifier (not the key itself) and is resolved by
+	// the KeyProvider in auth. When non-empty, mail-deliver should wrap
+	// the DeliveryAgent with msgstore.EncryptingDeliveryAgent before
+	// calling Deliver(). This field is omitempty for backward compatibility.
+	EncryptionKeyHint string `json:"encryption_key_hint,omitempty"`
 }
 
 // DeliverResponse is the JSON result written to stdout by mail-deliver before exit.
